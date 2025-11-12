@@ -1,0 +1,80 @@
+<!-- templates/lista.html -->
+{% extends "base.html" %}
+{% block content %}
+{% if lista %}
+    <h2>{{ lista.titulo }}</h2>
+    <p>{{ lista.descripcion }}</p>
+    {% if lista.imagen %}<img src="{{ lista.imagen }}" alt="{{ lista.titulo }}" width="200">{% endif %}
+    <p>Etiquetas: {% for le in lista.listas_etiquetas %}{{ le.etiqueta.nombre }}, {% endfor %}</p>
+    <p>Favoritos: {{ lista.contador_favoritos }}</p>
+    <p>Likes: {{ lista.likes|length }}</p>
+    {% if current_user.is_authenticated %}
+        <form method="POST" action="{{ url_for('favorito_lista', id_lista=lista.id) }}">
+            <button type="submit">Añadir a Favoritos</button>
+        </form>
+        <form method="POST" action="{{ url_for('suscribir_lista', id_lista=lista.id) }}">
+            <button type="submit">Suscribirse</button>
+        </form>
+        <form method="POST" action="{{ url_for('like_lista', id_lista=lista.id) }}">
+            <button type="submit">Like</button>
+        </form>
+        <form method="POST" action="{{ url_for('duplicar_lista', id_lista=lista.id) }}">
+            <button type="submit">Duplicar Lista</button>
+        </form>
+        <a href="{{ url_for('exportar_csv', id_lista=lista.id) }}">Exportar CSV</a>
+    {% endif %}
+    <h3>Items</h3>
+    <form method="GET">
+        <label>Filtrar por etiquetas: <input type="text" name="etiquetas" placeholder="etiqueta1,etiqueta2"></label>
+        <button type="submit">Filtrar</button>
+    </form>
+    <ul>
+        {% for item in items %}
+            <li>
+                {{ item.descripcion }} (Orden: {{ item.orden }})
+                {% if item.enlace %}<a href="{{ item.enlace }}">Enlace</a>{% endif %}
+                {% if item.imagen %}<img src="{{ item.imagen }}" alt="{{ item.descripcion }}" width="100">{% endif %}
+                <p>Etiquetas: {% for ie in item.items_etiquetas %}{{ ie.etiqueta.nombre }}, {% endfor %}</p>
+                <p>Likes: {{ item.likes|length }}</p>
+                {% if current_user.is_authenticated %}
+                    <form method="POST" action="{{ url_for('like_item', id_item=item.id) }}">
+                        <button type="submit">Like</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('check_item', id_item=item.id) }}">
+                        <button type="submit">Check</button>
+                    </form>
+                    {% for checked in item.checkeds if checked.id_usuario == current_user.id %}
+                        <p>Checked: {{ checked.fecha_checked }}</p>
+                    {% endfor %}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% if current_user.is_authenticated and lista.id_usuario == current_user.id %}
+        <h3>Añadir Item</h3>
+        <form method="POST" action="{{ url_for('agregar_item', id_lista=lista.id) }}">
+            <label>Descripción: <input type="text" name="descripcion" required></label><br>
+            <label>Enlace: <input type="url" name="enlace"></label><br>
+            <label>Imagen: <input type="url" name="imagen"></label><br>
+            <label>Orden: <input type="number" name="orden"></label><br>
+            <label>Etiquetas: <input type="text" name="etiquetas" placeholder="etiqueta1,etiqueta2"></label><br>
+            <button type="submit">Añadir Item</button>
+        </form>
+    {% endif %}
+{% else %}
+    <h2>Crear Nueva Lista</h2>
+    <form method="POST">
+        <label>Título: <input type="text" name="titulo" required></label><br>
+        <label>Descripción: <textarea name="descripcion"></textarea></label><br>
+        <label>Imagen: <input type="url" name="imagen"></label><br>
+        <label>Visibilidad: 
+            <select name="visibilidad">
+                <option value="publica">Pública</option>
+                <option value="privada">Privada</option>
+            </select>
+        </label><br>
+        <label>Etiquetas: <input type="text" name="etiquetas" placeholder="etiqueta1,etiqueta2"></label><br>
+        <button type="submit">Crear Lista</button>
+    </form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+<!-- templates/login.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Iniciar Sesión</h2>
+<form method="POST">
+    <label>Email: <input type="email" name="email" required></label><br>
+    <label>Contraseña: <input type="password" name="contrasena" required></label><br>
+    <button type="submit">Iniciar Sesión</button>
+</form>
+{% endblock %}

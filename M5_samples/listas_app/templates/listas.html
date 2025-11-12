@@ -1,0 +1,14 @@
+<!-- templates/listas.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Listas Públicas</h2>
+<a href="{{ url_for('crear_lista') }}">Crear Nueva Lista</a>
+<ul>
+    {% for lista in listas %}
+        <li>
+            <a href="{{ url_for('ver_lista', id_lista=lista.id) }}">{{ lista.titulo }}</a>
+            (Favoritos: {{ lista.contador_favoritos }})
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
