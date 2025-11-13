@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Biblioteca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Agregar Libro</h1>
+
+        <!-- Formulario para agregar libro -->
+        <form method="POST" class="search-form">
+            <input type="text" name="titulo" value="{{ titulo }}" 
+                    placeholder="Título del libro">
+            <input type="text" name="autor" value="{{ autor }}" 
+                    placeholder="Autor del libro">
+            <input type="text" name="isbn" value="{{ isbn }}" 
+                    placeholder="ISBN del libro">
+            <button type="submit">Agregar</button>
+        </form>
+
+        <!-- Grid de libros -->
+        <div class="libros-grid">
+            {% for libro in libros %}
+            <div class="libro-card">
+                <div class="libro-card-content">
+                    <h2>{{ libro.titulo }}</h2>
+                    <p>Autor: {{ libro.autor }}</p>
+                    <p>ISBN: {{ libro.isbn }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p class="no-results">No se encontraron libros.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

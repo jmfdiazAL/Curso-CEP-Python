@@ -81,6 +81,9 @@ class Biblioteca:
     def mostrar_libros(self):
         for libro in self.libros:
             print(libro)
+
+    def listar_libros(self):
+        return self.libros
     
     def buscar_por_titulo(self, titulo):
         return [libro for libro in self.libros if libro.titulo == titulo]
@@ -103,5 +106,12 @@ class Biblioteca:
         cursor = self._conn.cursor()
         cursor.execute('''
             DELETE FROM biblioteca WHERE id = ?
+        ''', (self._id,))
+        self._conn.commit()
+
+    def borrar_libros(self):
+        cursor = self._conn.cursor()
+        cursor.execute('''
+            DELETE FROM libro WHERE id_biblioteca = ?
         ''', (self._id,))
         self._conn.commit()

@@ -1,41 +1,46 @@
 from biblioteca import Biblioteca, Libro
-from flask import Flask, request
+from flask import Flask, render_template, request
+import os
+import markdown
+import frontmatter
 
-app = Flask('Biblioteca')
+# Función para cargar libros
+def cargar_libros(biblioteca):
+    libros = []
+    libros = biblioteca.listar_libros()
+    return libros
 
-@app.route('/')
-def index():
-    return 'Biblioteca'
-@app.route('/test')
-def test():
-    return 'test Flask'
+app = Flask(__name__)
 
-
-@app.route('/prestar',methods = ["GET", "POST"])
-@app.route('/suma/',methods = ["GET", "POST"])
-def suma():
-    htmlCode = ""
-    if request.method == "POST":
-        print("POST") # Obtenemos datos y calcula
-        sumando1 = int(request.form.get("Sumando1"))
-        sumando2 = int(request.form.get("Sumando2"))
-        htmlCode = "Resultado: " +  str(sumando1 +sumando2)
-    else:
-        print("GET") # Mostramos HTML
-        htmlCode = '''<form action="/suma" method="POST">
-                <label>Sumando 1:</label>
-                <input type="text" name="Sumando1"/>
-                <label>Sumando 2:</label>
-                <input type="text" name="Sumando2"/><br/><br/>
-                <input type="submit"/>
-                </form>'''
-    return htmlCode
-
-biblioteca = Biblioteca('Biblioteca Central')
-
+# Inicializar la biblioteca
+biblioteca = Biblioteca("Mi Biblioteca")
+# Borrar libros existentes para evitar duplicados en cada ejecución
+biblioteca.borrar_libros()
+# Agregar libros de ejemplo
 biblioteca.agregar_libro(Libro('Cien Años de Soledad', 'Gabriel García Márquez', '978-3-16-148410-0'))
 biblioteca.agregar_libro(Libro('Don Quijote de la Mancha', 'Miguel de Cervantes', '978-1-56619-909-4'))
 biblioteca.agregar_libro(Libro('La Sombra del Viento', 'Carlos Ruiz Zafón', '978-0-7432-7356-5'))
+biblioteca.agregar_libro(Libro('El Amor en los Tiempos del Cólera', 'Gabriel García Márquez', '978-0-307-38912-9'))
+biblioteca.agregar_libro(Libro('La Ciudad y los Perros', 'Mario Vargas Llosa', '978-0-14-303995-2'))
+biblioteca.agregar_libro(Libro('Ficciones', 'Jorge Luis Borges', '978-0-14-118280-3'))  
+
+# Rutas de la aplicación Flask
+# Página principal con lista de libros y buscador
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    libros = cargar_libros(biblioteca)
+    termino_busqueda = request.form.get('search', '').lower() if request.method == 'POST' else ''
+
+    # Filtrar libros si hay término de búsqueda
+    if termino_busqueda:
+        libros = [
+            libro for libro in libros
+            if termino_busqueda in libro.titulo.lower() or
+               termino_busqueda in libro.autor.lower() or
+               termino_busqueda in libro.isbn.lower()
+        ]
+
+    return render_template('index.html', libros=libros, termino_busqueda=termino_busqueda)
 
 if __name__ == '__main__':
-    app.run(debug = False, host='127.0.0.1') # solo acceso local y puerto 5000
+    app.run(debug=True)

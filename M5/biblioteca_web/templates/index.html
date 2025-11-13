@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Biblioteca</h1>
+
+<!-- Formulario de búsqueda -->
+<form method="POST" class="search-form">
+    <input type="text" name="search" value="{{ termino_busqueda }}" 
+            placeholder="Buscar libros por título, autor o ISBN...">
+    <button type="submit">Buscar</button>
+</form>
+
+<!-- Grid de libros -->
+<div class="libros-grid">
+    {% for libro in libros %}
+    <div class="libro-card">
+        <div class="libro-card-content">
+            <h2>{{ libro.titulo }}</h2>
+            <p>Autor: {{ libro.autor }}</p>
+            <p>ISBN: {{ libro.isbn }}</p>
+        </div>
+    </div>
+    {% else %}
+    <p class="no-results">No se encontraron libros.</p>
+    {% endfor %}
+</div>
+{% endblock %}
