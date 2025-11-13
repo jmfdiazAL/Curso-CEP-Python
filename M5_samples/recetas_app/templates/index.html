@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Recetas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Mis Recetas</h1>
+
+        <!-- Formulario de búsqueda -->
+        <form method="POST" class="search-form">
+            <input type="text" name="search" value="{{ termino_busqueda }}" 
+                   placeholder="Buscar recetas por título, contenido o etiquetas...">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <!-- Grid de tarjetas -->
+        <div class="recetas-grid">
+            {% for receta in recetas %}
+            <div class="receta-card">
+                <a href="{{ url_for('receta', nombre=receta.filename) }}">
+                    {% if receta.content | regex_search('\!.*(.*?)') %}
+                        {% set img_path = receta.content | regex_search('\!.*(.*?)') %}
+                        <img src="{{ url_for('static', filename=img_path[0][0] | replace('images/', '')) }}" alt="{{ receta.title }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="Sin imagen">
+                    {% endif %}
+                    <div class="receta-card-content">
+                        <h2>{{ receta.title }}</h2>
+                        <p>Categoría: {{ receta.category or 'Sin categoría' }}</p>
+                        <p>Etiquetas: {{ receta.tags | join(', ') or 'Ninguna' }}</p>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <p class="no-results">No se encontraron recetas.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

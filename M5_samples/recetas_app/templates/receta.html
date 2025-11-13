@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }}</h1>
+        <div class="bg-white p-6 rounded shadow">
+            {{ html | safe }}
+        </div>
+        <a href="{{ url_for('index') }}" class="text-blue-500 mt-4 inline-block hover:underline">Volver al inicio</a>
+    </div>
+</body>
+</html>
