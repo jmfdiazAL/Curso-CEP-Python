@@ -1,4 +1,5 @@
 # models.py
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -9,7 +10,7 @@ class DatabaseVersion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     version = db.Column(db.String(10), nullable=False, default='1.0')
 
-class Usuario(db.Model):
+class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     nombre_usuario = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
