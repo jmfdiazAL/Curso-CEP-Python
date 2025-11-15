@@ -63,6 +63,7 @@ class Biblioteca:
             SELECT * from biblioteca where nombre = ?)
         ''', (nombre,))
         self._conn.commit()
+        # Sólo se crea una vez con ese nombre
         if cursor.lastrowid == 0:
             # Guardar la biblioteca en la base de datos
             cursor.execute('''
