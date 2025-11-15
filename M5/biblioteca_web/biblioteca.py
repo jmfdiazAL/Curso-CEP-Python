@@ -40,7 +40,7 @@ class Biblioteca:
         cursor = self._conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS biblioteca (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY,
                 nombre TEXT NOT NULL
             )
         ''')
@@ -57,22 +57,14 @@ class Biblioteca:
         ''')
         self._conn.commit()
 
-        # Recuperamos la biblioteca si existe
-        cursor = self._conn.cursor()
+        # Guardar la biblioteca en la base de datos. Si existe, se actualiza
         cursor.execute('''
-            SELECT * from biblioteca where nombre = ?)
-        ''', (nombre,))
+            INSERT OR REPLACE INTO biblioteca (id, nombre) VALUES (?, ?)
+        ''', (1, nombre))
         self._conn.commit()
-        # Sólo se crea una vez con ese nombre
-        if cursor.lastrowid == 0:
-            # Guardar la biblioteca en la base de datos
-            cursor.execute('''
-                INSERT INTO biblioteca (nombre) VALUES (?)
-            ''', (nombre,))
-            self._conn.commit()
 
         self.nombre = nombre
-        self._id = cursor.lastrowid
+        self._id = 1
 
     def agregar_libro(self, libro):
         self.libros.append(libro)

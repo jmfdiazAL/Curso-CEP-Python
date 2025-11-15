@@ -7,6 +7,17 @@
 </head>
 <body>
     <div class="container">
+        <!-- Formulario de préstamo -->
+        <form method="POST" class="search-form">
+            <input type="text" name="prestar" value="{{ isbn_prestar }}" 
+                    placeholder="ISBN del libro a prestar/agregar">
+            <button type="submit">Prestar</button>
+            <button type="submit">Devolver</button>
+            <a href="{{ url_for('agregar') }}"><input type="button" value="Agregar" class="btn btn-secondary" /></a>
+        </form>
+        <p>{{ mensaje }}</p>
+    </div>
+    <div class="container">
     {% block content %}
     {% endblock %}    
     </div>

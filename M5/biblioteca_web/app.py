@@ -2,8 +2,6 @@ from biblioteca import Biblioteca, Libro
 from flask import Flask, render_template, request
 import os
 
-app = Flask(__name__)
-
 # Función para cargar libros
 def cargar_libros(biblioteca):
     libros = []
@@ -15,13 +13,15 @@ def init_biblioteca():
     biblioteca = Biblioteca('Mi Biblioteca')
     return biblioteca 
 
-biblioteca = None
+global biblioteca
+biblioteca = init_biblioteca()
+
+app = Flask(__name__)
 
 # Rutas de la aplicación Flask
 # Página principal con lista de libros y buscador
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    biblioteca = init_biblioteca()
     libros = cargar_libros(biblioteca)
     termino_busqueda = request.form.get('search', '').lower() if request.method == 'POST' else ''
 
@@ -49,6 +49,11 @@ def agregar():
         biblioteca.agregar_libro(Libro(titulo, autor, isbn))  
 
     return render_template("agregar.html", titulo=titulo, autor=autor, isbn=isbn)
+
+@app.route('/prestar/<isbn>', methods=['GET', 'POST'])
+def prestar(isbn):
+    libros = cargar_libros(biblioteca)
+    return render_template('index.html', libros=libros, mensaje=isbn)
 
 if __name__ == '__main__':
     app.run(debug=True)
