@@ -33,7 +33,7 @@ class Biblioteca:
     
     def __init__(self, nombre):
         # Creamos la conexión a la base de datos
-        self._conn = sqlite3.connect('biblioteca.db')
+        self._conn = sqlite3.connect('biblioteca.db', check_same_thread=False)
         self._conn.execute("PRAGMA foreign_keys = 1") # Habilitar claves foráneas para On DELETE CASCADE
 
         # Crear las tablas en la base de datos
@@ -57,12 +57,18 @@ class Biblioteca:
         ''')
         self._conn.commit()
 
-        # Guardar la biblioteca en la base de datos
+        # Recuperamos la biblioteca si existe
         cursor = self._conn.cursor()
         cursor.execute('''
-            INSERT INTO biblioteca (nombre) VALUES (?)
+            SELECT * from biblioteca where nombre = ?)
         ''', (nombre,))
         self._conn.commit()
+        if cursor.lastrowid == 0:
+            # Guardar la biblioteca en la base de datos
+            cursor.execute('''
+                INSERT INTO biblioteca (nombre) VALUES (?)
+            ''', (nombre,))
+            self._conn.commit()
 
         self.nombre = nombre
         self._id = cursor.lastrowid
