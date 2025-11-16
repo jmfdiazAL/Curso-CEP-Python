@@ -77,10 +77,17 @@ class Biblioteca:
     def cargar_libros(self):
         cursor = self._conn.cursor()
         cursor.execute('''
-            SELECT titulo, autor, isbn, disponible FROM libro WHERE id_biblioteca = ?
+            SELECT id, titulo, autor, isbn, disponible FROM libro WHERE id_biblioteca = ?
         ''', (self._id,))
-        self.libros = cursor.fetchall()
-        return [Libro(titulo, autor, isbn) for titulo, autor, isbn, disponible in self.libros]
+        books = cursor.fetchall()
+        self.libros.clear()
+        for book in books:
+            id, titulo, autor, isbn, disponible = book
+            libro = Libro(titulo, autor, isbn)
+            libro.disponible = bool(disponible)
+            libro._id = id
+            self.libros.append(libro)
+        return self.libros
 
     def mostrar_libros(self):
         for libro in self.libros:
