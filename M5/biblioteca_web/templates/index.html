@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Biblioteca</h1>
+<h1>Libros disponibles</h1>
 
 <!-- Formulario de búsqueda -->
 <form method="POST" class="search-form">
@@ -17,6 +17,12 @@
             <h2>{{ libro.titulo }}</h2>
             <p>Autor: {{ libro.autor }}</p>
             <p>ISBN: {{ libro.isbn }}</p>
+            <p>Estado: {{ 'Disponible' if libro.disponible else 'No disponible' }}</p>
+            {% if libro.disponible %}
+                <a href="{{ url_for('prestar', isbn=libro.isbn) }}" class="btn btn-sm btn-primary">Prestar</a>
+            {% else %}
+                <a href="{{ url_for('devolver', isbn=libro.isbn) }}" class="btn btn-sm btn-success">Devolver</a>
+            {% endif %}
         </div>
     </div>
     {% else %}

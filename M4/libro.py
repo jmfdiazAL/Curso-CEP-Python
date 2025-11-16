@@ -18,10 +18,5 @@ class Libro:
     def __str__(self):
         return f'Título: {self.titulo}, Autor: {self.autor}, ISBN: {self.isbn}, Disponible: {self.disponible}'
 
-    def devolver(self):
-        if self._prestado:
-            self._prestado = False
-            self.disponible = True
-
     def __str__(self):
         return f'Título: {self.titulo}, Autor: {self.autor}, ISBN: {self.isbn}, Disponible: {self.disponible}'

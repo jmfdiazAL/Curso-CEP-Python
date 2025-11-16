@@ -20,11 +20,6 @@ class Libro:
     def __str__(self):
         return f'Título: {self.titulo}, Autor: {self.autor}, ISBN: {self.isbn}, Disponible: {self.disponible}'
 
-    def devolver(self):
-        if self._prestado:
-            self._prestado = False
-            self.disponible = True
-
     def __str__(self):
         return f'Título: {self.titulo}, Autor: {self.autor}, ISBN: {self.isbn}, Disponible: {self.disponible}'
 
@@ -34,7 +29,6 @@ class Biblioteca:
     def __init__(self, nombre):
         # Creamos la conexión a la base de datos
         self._conn = sqlite3.connect('biblioteca.db', check_same_thread=False)
-        self._conn.execute("PRAGMA foreign_keys = 1") # Habilitar claves foráneas para On DELETE CASCADE
 
         # Crear las tablas en la base de datos
         cursor = self._conn.cursor()
@@ -52,7 +46,7 @@ class Biblioteca:
                 isbn TEXT NOT NULL,
                 disponible BOOLEAN NOT NULL,
                 id_biblioteca INTEGER,
-                FOREIGN KEY (id_biblioteca) REFERENCES biblioteca (id) ON DELETE CASCADE
+                FOREIGN KEY (id_biblioteca) REFERENCES biblioteca (id)
             )
         ''')
         self._conn.commit()
@@ -70,12 +64,23 @@ class Biblioteca:
         self.libros.append(libro)
         # Guardar el libro en la base de datos
         cursor = self._conn.cursor()
+        try:
+            cursor.execute('''
+                INSERT INTO libro (titulo, autor, isbn, disponible, id_biblioteca)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (libro.titulo, libro.autor, libro.isbn, libro.disponible, self._id))
+            self._conn.commit()
+            libro._id = cursor.lastrowid
+        except sqlite3.IntegrityError as e:
+            raise ValueError('ISBN duplicado') from e
+
+    def cargar_libros(self):
+        cursor = self._conn.cursor()
         cursor.execute('''
-            INSERT INTO libro (titulo, autor, isbn, disponible, id_biblioteca)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (libro.titulo, libro.autor, libro.isbn, libro.disponible, self._id))
-        self._conn.commit()
-        libro._id = cursor.lastrowid
+            SELECT titulo, autor, isbn, disponible FROM libro WHERE id_biblioteca = ?
+        ''', (self._id,))
+        self.libros = cursor.fetchall()
+        return [Libro(titulo, autor, isbn) for titulo, autor, isbn, disponible in self.libros]
 
     def mostrar_libros(self):
         for libro in self.libros:
@@ -91,6 +96,19 @@ class Biblioteca:
         for libro in self.libros:
             if libro.isbn == isbn and libro.disponible:
                 libro.prestar()
+                # Actualizar en la base de datos
+                cursor = self._conn.cursor()
+                cursor.execute('''
+                    UPDATE libro SET disponible = ? WHERE id = ?
+                ''', (libro.disponible, libro._id))
+                self._conn.commit()
+                return True
+        return False
+    
+    def devolver_libro(self, isbn):
+        for libro in self.libros:
+            if libro.isbn == isbn and not libro.disponible:
+                libro.devolver()
                 # Actualizar en la base de datos
                 cursor = self._conn.cursor()
                 cursor.execute('''
